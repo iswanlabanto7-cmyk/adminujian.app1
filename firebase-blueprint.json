@@ -1,0 +1,77 @@
+{
+  "entities": {
+    "Exam": {
+      "title": "Exam",
+      "description": "Data sesi ujian online yang dibuat oleh guru atau pengawas",
+      "type": "object",
+      "properties": {
+        "namaUjian": {
+          "type": "string",
+          "description": "Nama atau judul ujian yang diadakan",
+          "minLength": 1,
+          "maxLength": 200
+        },
+        "linkGoogleForm": {
+          "type": "string",
+          "description": "Tautan Google Form untuk lembar soal ujian",
+          "minLength": 5,
+          "maxLength": 500
+        },
+        "pinMasuk": {
+          "type": "string",
+          "description": "PIN untuk siswa memulai pengerjaan ujian",
+          "minLength": 1,
+          "maxLength": 20
+        },
+        "pinKeluar": {
+          "type": "string",
+          "description": "PIN saat siswa selesai mengirimkan jawaban",
+          "minLength": 1,
+          "maxLength": 20
+        },
+        "pinPengawas": {
+          "type": "string",
+          "description": "PIN otorisasi guru atau pengawas ruangan",
+          "minLength": 1,
+          "maxLength": 20
+        },
+        "zonaWaktu": {
+          "type": "string",
+          "description": "Zona waktu pelaksanaan ujian di Indonesia",
+          "enum": ["WIB", "WITA", "WIT"]
+        },
+        "waktuMulai": {
+          "type": "string",
+          "description": "Waktu mulai pelaksanaan ujian",
+          "maxLength": 50
+        },
+        "waktuSelesai": {
+          "type": "string",
+          "description": "Waktu selesai pelaksanaan ujian",
+          "maxLength": 50
+        },
+        "durasiMenit": {
+          "type": "number",
+          "description": "Durasi pengerjaan ujian dalam menit",
+          "minimum": 1,
+          "maximum": 1440
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "Waktu pembuatan dokumen ujian"
+        },
+        "updatedAt": {
+          "type": "string",
+          "description": "Waktu pembaruan dokumen ujian"
+        }
+      },
+      "required": ["namaUjian", "linkGoogleForm", "pinMasuk", "pinKeluar", "pinPengawas", "zonaWaktu"]
+    }
+  },
+  "firestore": {
+    "/data_ujian/{examId}": {
+      "schema": "Exam",
+      "description": "Koleksi data sesi ujian yang dapat diakses oleh guru dan siswa"
+    }
+  }
+}

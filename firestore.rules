@@ -1,0 +1,56 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    function isValidId(id) {
+      return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function isValidExam(data) {
+      return (
+        data.keys().hasAll(['namaUjian', 'linkGoogleForm', 'pinMasuk', 'pinKeluar', 'pinPengawas', 'zonaWaktu']) &&
+        data.keys().hasOnly(['namaUjian', 'linkGoogleForm', 'pinMasuk', 'pinKeluar', 'pinPengawas', 'zonaWaktu', 'waktuMulai', 'waktuSelesai', 'durasiMenit', 'createdAt', 'updatedAt']) &&
+        data.namaUjian is string && data.namaUjian.size() >= 1 && data.namaUjian.size() <= 200 &&
+        data.linkGoogleForm is string && data.linkGoogleForm.size() >= 5 && data.linkGoogleForm.size() <= 500 &&
+        data.pinMasuk is string && data.pinMasuk.size() >= 1 && data.pinMasuk.size() <= 20 &&
+        data.pinKeluar is string && data.pinKeluar.size() >= 1 && data.pinKeluar.size() <= 20 &&
+        data.pinPengawas is string && data.pinPengawas.size() >= 1 && data.pinPengawas.size() <= 20 &&
+        data.zonaWaktu in ['WIB', 'WITA', 'WIT'] &&
+        (!('waktuMulai' in data) || (data.waktuMulai is string && data.waktuMulai.size() <= 50)) &&
+        (!('waktuSelesai' in data) || (data.waktuSelesai is string && data.waktuSelesai.size() <= 50)) &&
+        (!('durasiMenit' in data) || ((data.durasiMenit is int || data.durasiMenit is number) && data.durasiMenit >= 1 && data.durasiMenit <= 1440)) &&
+        (!('updatedAt' in data) || (data.updatedAt is string && data.updatedAt.size() <= 50))
+      );
+    }
+
+    function isValidExamCompat(data) {
+      return (
+        data.keys().hasAll(['nama_ujian', 'link_gform', 'pin_masuk', 'pin_keluar', 'pin_pengawas', 'zona_waktu']) &&
+        data.keys().hasOnly(['nama_ujian', 'link_gform', 'pin_masuk', 'pin_keluar', 'pin_pengawas', 'zona_waktu', 'waktu_mulai', 'waktu_selesai', 'waktuMulai', 'waktuSelesai', 'durasi_menit', 'durasiMenit', 'created_at', 'createdAt', 'updatedAt', 'updated_at']) &&
+        data.nama_ujian is string && data.nama_ujian.size() >= 1 && data.nama_ujian.size() <= 200 &&
+        data.link_gform is string && data.link_gform.size() >= 5 && data.link_gform.size() <= 500 &&
+        data.pin_masuk is string && data.pin_masuk.size() >= 1 && data.pin_masuk.size() <= 20 &&
+        data.pin_keluar is string && data.pin_keluar.size() >= 1 && data.pin_keluar.size() <= 20 &&
+        data.pin_pengawas is string && data.pin_pengawas.size() >= 1 && data.pin_pengawas.size() <= 20 &&
+        data.zona_waktu in ['WIB', 'WITA', 'WIT'] &&
+        (!('waktu_mulai' in data) || (data.waktu_mulai is string && data.waktu_mulai.size() <= 50)) &&
+        (!('waktu_selesai' in data) || (data.waktu_selesai is string && data.waktu_selesai.size() <= 50)) &&
+        (!('durasi_menit' in data) || ((data.durasi_menit is int || data.durasi_menit is number) && data.durasi_menit >= 1 && data.durasi_menit <= 1440)) &&
+        (!('durasiMenit' in data) || ((data.durasiMenit is int || data.durasiMenit is number) && data.durasiMenit >= 1 && data.durasiMenit <= 1440)) &&
+        (!('updatedAt' in data) || (data.updatedAt is string && data.updatedAt.size() <= 50)) &&
+        (!('updated_at' in data) || (data.updated_at is string && data.updated_at.size() <= 50))
+      );
+    }
+
+    match /data_ujian/{examId} {
+      allow get, list: if true;
+      allow create: if isValidId(examId) && (isValidExam(request.resource.data) || isValidExamCompat(request.resource.data));
+      allow update: if isValidId(examId) && (isValidExam(request.resource.data) || isValidExamCompat(request.resource.data));
+      allow delete: if isValidId(examId);
+    }
+
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
